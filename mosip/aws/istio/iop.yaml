@@ -40,7 +40,9 @@ spec:
     ingressGateways:
       ## Public access to external ingress gateway is disabled by default. Enable it in production.
       - name: istio-ingressgateway
-        enabled: false
+        enabled: true
+        label:
+            istio: ingressgateway
         k8s:
           env:
           - name: ISTIO_META_IDLE_TIMEOUT
@@ -48,6 +50,34 @@ spec:
           serviceAnnotations:
             service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
             service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+            service.beta.kubernetes.io/aws-load-balancer-public: "true"
+          service:
+            ports:
+            - port: 15021
+              targetPort: 15021
+              name: status-port
+              protocol: TCP
+            - port: 80
+              targetPort: 8080
+              name: http2
+              protocol: TCP
+            - port: 443
+              targetPort: 8443
+              name: https
+              protocol: TCP
+            # additional ports
+            - port: 61616
+              targetPort: 61616
+              name: activemq
+              protocol: TCP
+            - port: 5432
+              targetPort: 5432
+              name: postgres
+              protocol: TCP
+            - port: 9000
+              targetPort: 9000
+              name: minio
+              protocol: TCP
       - name: istio-ingressgateway-internal
         enabled: true
         label:
